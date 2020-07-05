@@ -1,7 +1,9 @@
 import React from 'react';
 
+import ApplicationRoutes from './config/ApplicationRoutes';
+
 function App() {
-  return <h1>Hello World</h1>;
+  return <ApplicationRoutes />;
 }
 
 export default App;
