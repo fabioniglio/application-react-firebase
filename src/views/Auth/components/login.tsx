@@ -1,11 +1,16 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
+import { FiMail, FiLock } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 import firebase from '../../../firebase';
 import 'firebase/auth';
 import 'firebase/firestore';
 import { AuthContext } from '../../../AuthProvider';
+import { Form } from '@unform/web';
 
-import { Container, Content } from './styles';
+import { Container, Content, AnimationContainer } from './styles';
+
+import Input from '../../../components/Input';
+import Button from '../../../components/Button';
 
 interface UserData {
   email: string;
@@ -16,10 +21,6 @@ const Login = () => {
   const authContext = useContext(AuthContext);
   const { loadingAuthState } = useContext(AuthContext);
   const history = useHistory();
-  const [values, setValues] = useState({
-    email: '',
-    password: '',
-  } as UserData);
 
   const db = firebase.firestore();
 
@@ -74,20 +75,10 @@ const Login = () => {
     history.push('/dashboard');
   };
 
-  const handleChange = (event: any) => {
-    event.persist();
-    setValues(values => ({
-      ...values,
-      [event.target.name]: event.target.value,
-    }));
-  };
-
-  const handleSubmit = (event: any) => {
-    event.preventDefault();
-
+  const handleSubmit = useCallback(async (data: UserData) => {
     firebase
       .auth()
-      .signInWithEmailAndPassword(values.email, values.password)
+      .signInWithEmailAndPassword(data.email, data.password)
       .then(res => {
         authContext.setUser(res);
         console.log(res, 'res');
@@ -97,7 +88,7 @@ const Login = () => {
         console.log(error.message);
         alert(error.message);
       });
-  };
+  }, []);
 
   if (loadingAuthState) {
     return (
@@ -110,31 +101,28 @@ const Login = () => {
   return (
     <Container>
       <Content>
-        <h1>Login</h1>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="email"
-            value={values.email}
-            placeholder="Enter your Email"
-            onChange={handleChange}
-          />
-          <br />
-          <br />
-          <input
-            type="password"
-            name="password"
-            value={values.password}
-            placeholder="Enter your Password"
-            onChange={handleChange}
-          />
-          <br />
-          <br />
-          <button>Login</button>
-        </form>
+        <AnimationContainer>
+          <Form onSubmit={handleSubmit}>
+            <h1>Login</h1>
+            <Input
+              type="text"
+              name="email"
+              icon={FiMail}
+              placeholder="Enter your Email"
+            />
 
-        <br />
-        <br />
+            <Input
+              type="password"
+              name="password"
+              icon={FiLock}
+              placeholder="Enter your Password"
+            />
+
+            <Button name="Enter" type="submit">
+              Login
+            </Button>
+          </Form>
+        </AnimationContainer>
       </Content>
     </Container>
   );
