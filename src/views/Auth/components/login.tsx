@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, { useContext, useEffect, useCallback } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 import firebase from '../../../firebase';

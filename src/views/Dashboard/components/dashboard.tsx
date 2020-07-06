@@ -1,24 +1,70 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import fromUnixTime from 'date-fns/fromUnixTime';
+import { format, parseISO } from 'date-fns';
 import firebase from '../../../firebase';
 import 'firebase/firestore';
 import api from '../../../services/api';
+import { FiPower } from 'react-icons/fi';
 
-import { Container } from './styles';
+import {
+  withStyles,
+  Theme,
+  createStyles,
+  makeStyles,
+} from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+
+import { Container, Header, HeaderContent, Content, Orders } from './styles';
+
+const StyledTableCell = withStyles((theme: Theme) =>
+  createStyles({
+    head: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    body: {
+      fontSize: 14,
+    },
+  }),
+)(TableCell);
+
+const StyledTableRow = withStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      '&:nth-of-type(odd)': {
+        backgroundColor: theme.palette.action.hover,
+      },
+    },
+  }),
+)(TableRow);
+
+const useStyles = makeStyles({
+  table: {
+    minWidth: 700,
+  },
+});
 
 interface orderData extends firebase.firestore.DocumentData {
   id: string;
   title: string;
-  bookingDate: string;
+  bookingDate: number;
+  dateFormatted: string;
   address: {
     city: string;
     country: string;
-    street: string;
+    street: string | undefined;
     zip: string;
   };
-  customer: {
+  customer?: {
     email: string;
-    name: string;
+    name: string | undefined;
     phone: string;
   };
 }
@@ -26,6 +72,8 @@ interface orderData extends firebase.firestore.DocumentData {
 const Dashboard = () => {
   const [orders, setOrders] = useState<orderData[]>([]);
   const history = useHistory();
+
+  const classes = useStyles();
 
   useEffect(() => {
     // const fetchData = async () => {
@@ -39,7 +87,24 @@ const Dashboard = () => {
       api
         .get<orderData[]>('/orders')
         .then(response => {
-          setOrders(response.data);
+          const ordersFormatted = response.data.map(order => {
+            if (order.bookingDate === null || order.bookingDate === undefined) {
+              return {
+                ...order,
+                dateFormatted: '',
+              };
+            } else {
+              return {
+                ...order,
+                dateFormatted: format(
+                  fromUnixTime(order.bookingDate),
+                  'dd/MM/yyyy',
+                ),
+              };
+            }
+          });
+          console.log(ordersFormatted);
+          setOrders(ordersFormatted);
         })
         .catch(error => {
           console.log(error.message);
@@ -60,19 +125,55 @@ const Dashboard = () => {
         history.push('/auth/login');
       });
   };
+
   return (
     <Container>
-      <h1>Dashboard</h1>
-      <h2>Welcome to Dashboard!</h2>
-      <br />
-      <br />
-      <button onClick={handleClick}>Logout</button>
-      <br />
-      {orders.map((order: orderData) => (
-        <li key={order.id}>
-          <span>{order.title}</span>
-        </li>
-      ))}
+      <Header>
+        <HeaderContent>
+          <h1>Welcome to Dashboard!</h1>
+          <button onClick={handleClick}>
+            <FiPower />
+          </button>
+        </HeaderContent>
+      </Header>
+
+      <Content>
+        <TableContainer component={Paper}>
+          <Table className={classes.table} aria-label="customized table">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>Title</StyledTableCell>
+                <StyledTableCell align="right">Booking Date</StyledTableCell>
+                {/* <StyledTableCell align="right">Address</StyledTableCell> */}
+                {/* <StyledTableCell align="right">Customer</StyledTableCell> */}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {orders.map((order: orderData) => (
+                <StyledTableRow key={order.id}>
+                  <StyledTableCell component="th" scope="row">
+                    {order.title}
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    {order.dateFormatted}
+                  </StyledTableCell>
+                  {/* {order.address.street !== undefined && (
+                    <StyledTableCell align="right">
+                      {order.address.street}
+                    </StyledTableCell>
+                  )} */}
+
+                  {/* {order.customer.name !== undefined && (
+                    <StyledTableCell align="right">
+                      {order.customer.name}
+                    </StyledTableCell>
+                  )} */}
+                </StyledTableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Content>
     </Container>
   );
 };
