@@ -5,6 +5,8 @@ import 'firebase/auth';
 import 'firebase/firestore';
 import { AuthContext } from '../../../AuthProvider';
 
+import { Container, Content } from './styles';
+
 interface UserData {
   email: string;
   password: string;
@@ -106,33 +108,35 @@ const Login = () => {
   }
 
   return (
-    <div style={{ textAlign: 'center' }}>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="email"
-          value={values.email}
-          placeholder="Enter your Email"
-          onChange={handleChange}
-        />
-        <br />
-        <br />
-        <input
-          type="password"
-          name="password"
-          value={values.password}
-          placeholder="Enter your Password"
-          onChange={handleChange}
-        />
-        <br />
-        <br />
-        <button>Login</button>
-      </form>
+    <Container>
+      <Content>
+        <h1>Login</h1>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="email"
+            value={values.email}
+            placeholder="Enter your Email"
+            onChange={handleChange}
+          />
+          <br />
+          <br />
+          <input
+            type="password"
+            name="password"
+            value={values.password}
+            placeholder="Enter your Password"
+            onChange={handleChange}
+          />
+          <br />
+          <br />
+          <button>Login</button>
+        </form>
 
-      <br />
-      <br />
-    </div>
+        <br />
+        <br />
+      </Content>
+    </Container>
   );
 };
 
