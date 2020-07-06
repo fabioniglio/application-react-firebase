@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import fromUnixTime from 'date-fns/fromUnixTime';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import firebase from '../../../firebase';
 import 'firebase/firestore';
 import api from '../../../services/api';
@@ -21,7 +21,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-import { Container, Header, HeaderContent, Content, Orders } from './styles';
+import { Container, Header, HeaderContent, Content } from './styles';
 
 const StyledTableCell = withStyles((theme: Theme) =>
   createStyles({

@@ -33,20 +33,3 @@ export const Content = styled.main`
   align-items: center;
   justify-content: center;
 `;
-
-export const Orders = styled.div`
-  display: flex;
-  align-items: center;
-
-  & + div {
-    margin-top: 16px;
-  }
-
-  span {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    color: #f4ede8;
-    width: 200px;
-  }
-`;

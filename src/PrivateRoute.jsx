@@ -1,16 +1,9 @@
 import React, { useContext } from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import { RouteProps as ReactDOMRouteProps } from 'react-router';
+
 import { AuthContext } from './AuthProvider';
 
-interface RouteProps extends ReactDOMRouteProps {
-  component: React.ComponentType;
-}
-
-const PrivateRoute: React.FC<RouteProps> = ({
-  component: RouteComponent,
-  ...rest
-}) => {
+const PrivateRoute = ({ component: RouteComponent, ...rest }) => {
   const { authenticated, loadingAuthState } = useContext(AuthContext);
 
   if (loadingAuthState) {
@@ -26,7 +19,7 @@ const PrivateRoute: React.FC<RouteProps> = ({
       {...rest}
       render={routeProps =>
         authenticated ? (
-          <RouteComponent />
+          <RouteComponent {...routeProps} />
         ) : (
           <Redirect
             to={{ pathname: '/auth/login', state: { prevPath: rest.path } }}
