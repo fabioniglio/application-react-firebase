@@ -4,7 +4,7 @@ import { OrderDetail } from '../components';
 export const OrderDetailRoutes = () => {
   return (
     <Switch>
-      <Route exact path="/orderdetail" component={OrderDetail} />
+      <Route exact path="/orderdetail/:order+" component={OrderDetail} />
     </Switch>
   );
 };

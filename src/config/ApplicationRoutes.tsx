@@ -15,7 +15,11 @@ const ApplicationRoutes = () => {
     <Router>
       <Switch>
         <PrivateRoute exact path="/dashboard" component={DashboardRoutes} />
-        <PrivateRoute exact path="/orderdetail" component={OrderDetailRoutes} />
+        <PrivateRoute
+          exact
+          path="/orderdetail/:order+"
+          component={OrderDetailRoutes}
+        />
         <Route path="/auth" component={AuthRoutes} />
         <Redirect to="/auth" from="/" />
       </Switch>

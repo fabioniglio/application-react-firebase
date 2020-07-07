@@ -75,20 +75,23 @@ const Login = () => {
     history.push('/dashboard');
   };
 
-  const handleSubmit = useCallback(async (data: UserData) => {
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(data.email, data.password)
-      .then(res => {
-        authContext.setUser(res);
-        console.log(res, 'res');
-        history.push('/dashboard');
-      })
-      .catch(error => {
-        console.log(error.message);
-        alert(error.message);
-      });
-  }, []);
+  const handleSubmit = useCallback(
+    async (data: UserData) => {
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(data.email, data.password)
+        .then(res => {
+          authContext.setUser(res);
+          console.log(res, 'res');
+          history.push('/dashboard');
+        })
+        .catch(error => {
+          console.log(error.message);
+          alert(error.message);
+        });
+    },
+    [history, authContext],
+  );
 
   if (loadingAuthState) {
     return (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import fromUnixTime from 'date-fns/fromUnixTime';
 import { format } from 'date-fns';
 import firebase from '../../../firebase';
@@ -52,7 +52,7 @@ const useStyles = makeStyles({
 });
 
 interface orderData extends firebase.firestore.DocumentData {
-  id: string;
+  uid: string;
   title: string;
   bookingDate: number;
   dateFormatted: string;
@@ -76,13 +76,6 @@ const Dashboard = () => {
   const classes = useStyles();
 
   useEffect(() => {
-    // const fetchData = async () => {
-    //   const db = firebase.firestore();
-    //   const snapshot = await db.collection('orders').get();
-
-    //   setOrders(snapshot.docs.map(doc => doc.data()));
-    // };
-
     const fetchData = () => {
       api
         .get<orderData[]>('/orders')
@@ -113,7 +106,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, [setOrders]);
 
   const handleClick = (event: any) => {
     event.preventDefault();
@@ -150,9 +143,9 @@ const Dashboard = () => {
             </TableHead>
             <TableBody>
               {orders.map((order: orderData) => (
-                <StyledTableRow key={order.id}>
+                <StyledTableRow key={order.uid}>
                   <StyledTableCell component="th" scope="row">
-                    {order.title}
+                    <Link to={`/orderdetail/${order.uid}`}>{order.title}</Link>
                   </StyledTableCell>
                   <StyledTableCell align="right">
                     {order.dateFormatted}
