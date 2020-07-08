@@ -26,6 +26,7 @@ const Input: React.FC<InputProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
   const { fieldName, defaultValue, error, registerField } = useField(name);
 
   const handleInputFocus = useCallback(() => {
@@ -36,6 +37,12 @@ const Input: React.FC<InputProps> = ({
     setIsFocused(false);
 
     setIsFilled(!!inputRef.current?.value);
+  }, []);
+
+  const handleDisabled = useCallback(props => {
+    if (props.disabled) {
+      setIsDisabled(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -52,6 +59,7 @@ const Input: React.FC<InputProps> = ({
       isErrored={!!error}
       isFilled={isFilled}
       isFocused={isFocused}
+      isDisabled={isDisabled}
     >
       {Icon && <Icon size={20} />}
       <input

@@ -137,8 +137,8 @@ const Dashboard = () => {
               <TableRow>
                 <StyledTableCell>Title</StyledTableCell>
                 <StyledTableCell align="right">Booking Date</StyledTableCell>
-                {/* <StyledTableCell align="right">Address</StyledTableCell> */}
-                {/* <StyledTableCell align="right">Customer</StyledTableCell> */}
+                <StyledTableCell align="right">Address</StyledTableCell>
+                <StyledTableCell align="right">Customer</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -150,17 +150,17 @@ const Dashboard = () => {
                   <StyledTableCell align="right">
                     {order.dateFormatted}
                   </StyledTableCell>
-                  {/* {order.address.street !== undefined && (
+                  {order.address.street !== undefined && (
                     <StyledTableCell align="right">
                       {order.address.street}
                     </StyledTableCell>
-                  )} */}
+                  )}
 
-                  {/* {order.customer.name !== undefined && (
+                  {order.customer?.name !== undefined && (
                     <StyledTableCell align="right">
-                      {order.customer.name}
+                      {order.customer?.name}
                     </StyledTableCell>
-                  )} */}
+                  )}
                 </StyledTableRow>
               ))}
             </TableBody>

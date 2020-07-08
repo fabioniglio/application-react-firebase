@@ -6,6 +6,7 @@ interface ContainerProps {
   isFocused: boolean;
   isFilled: boolean;
   isErrored: boolean;
+  isDisabled: boolean;
 }
 
 export const Container = styled.div<ContainerProps>`
@@ -44,7 +45,11 @@ export const Container = styled.div<ContainerProps>`
       css`
         color: #ff9000;
       `}
-
+    ${props =>
+      props.isDisabled &&
+      css`
+        background: #747474;
+      `}
 
 
   input {
