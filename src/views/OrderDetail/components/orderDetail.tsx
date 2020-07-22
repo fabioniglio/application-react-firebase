@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
-
+// import DatePicker from '../../../components/DatePicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import fromUnixTime from 'date-fns/fromUnixTime';
 import getTime from 'date-fns/getTime';
-import { format } from 'date-fns';
+import { format, getUnixTime } from 'date-fns';
 import { Form } from '@unform/web';
 import api from '../../../services/api';
 import firebase from '../../../firebase';
@@ -47,9 +47,9 @@ interface orderData {
 }
 
 const OrderDetail = () => {
-  const [order, setOrder] = useState<orderData>();
+  const [order, setOrder] = useState<orderData | undefined>();
 
-  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date | null>();
 
   const [newDate, setNewDate] = useState<Date>();
   const { params } = useRouteMatch<OrderParams>();
@@ -59,7 +59,7 @@ const OrderDetail = () => {
     console.log(params.order);
 
     function fetchData() {
-      const orderTest = api
+      api
         .get<orderData>(`orders/${params.order}`)
         .then(response => {
           console.log('test ' + response.data.bookingDate);
@@ -70,7 +70,7 @@ const OrderDetail = () => {
           console.log(dateFormatted);
 
           setNewDate(dateFormatted);
-
+          setStartDate(dateFormatted);
           const orderFormatted = {
             ...order,
             dateFormatted: format(
@@ -79,21 +79,18 @@ const OrderDetail = () => {
             ),
           };
 
-          console.log('Date ' + newDate);
           setOrder(orderFormatted);
         })
         .catch(error => {
           console.log(error.message);
           alert(error.message);
         });
-
-      console.log(orderTest);
     }
 
     fetchData();
   }, [setOrder, params.order]);
 
-  const handleClick = (event: any) => {
+  const handleSignOut = (event: any) => {
     event.preventDefault();
 
     firebase
@@ -106,13 +103,21 @@ const OrderDetail = () => {
 
   const handleUpdateOrder = useCallback(async (data: orderData) => {
     const id = params.order;
+    console.log(data.bookingDate);
+    const { title, bookingDate } = data;
     try {
-      const { title, bookingDate } = data;
       console.log('uid ' + id);
+      console.log(startDate);
+      let newDate: Date;
+      if (startDate) {
+        newDate = new Date(startDate);
+      } else {
+        newDate = new Date();
+      }
 
       const bodyData = {
         title,
-        bookingDate: getTime(new Date()),
+        bookingDate: getUnixTime(newDate),
       };
       console.log(bodyData);
       await api.put(`/orders/${id}`, bodyData);
@@ -123,106 +128,88 @@ const OrderDetail = () => {
     }
   }, []);
 
-  // const handleDateChange = useCallback((event: any, date: Date | undefined) => {
-  //   if (date) {
-  //     setStartDate(date);
-  //   }
-  // }, []);
-
   return (
-    <>
-      <Container>
-        <Header>
-          <HeaderContent>
-            <h1>Order detail</h1>
-            <button onClick={handleClick}>
-              <FiPower />
-            </button>
-          </HeaderContent>
-        </Header>
+    <Container>
+      <Header>
+        <HeaderContent>
+          <h1>Order detail</h1>
+          <button onClick={handleSignOut}>
+            <FiPower />
+          </button>
+        </HeaderContent>
+      </Header>
 
-        <Content>
-          <Form
-            initialData={{
-              title: order?.title,
-              booking: order?.dateFormatted,
-              city: order?.address.city,
-              country: order?.address.country,
-              street: order?.address.street,
-              zip: order?.address.zip,
-              name: order?.customer.name,
-              email: order?.customer.email,
-              phone: order?.customer.phone,
-            }}
-            onSubmit={handleUpdateOrder}
-          >
-            <ContentInput>
-              <h1>Order Title</h1>
-              <ContentTitle>
-                <Input name="title" placeholder="Title" />
-              </ContentTitle>
-            </ContentInput>
+      <Content>
+        <Form
+          initialData={{
+            title: order?.title,
+            booking: order?.dateFormatted,
+            city: order?.address.city,
+            country: order?.address.country,
+            street: order?.address.street,
+            zip: order?.address.zip,
+            name: order?.customer.name,
+            email: order?.customer.email,
+            phone: order?.customer.phone,
+          }}
+          onSubmit={handleUpdateOrder}
+        >
+          <ContentInput>
+            <h1>Order Title</h1>
+            <ContentTitle>
+              <Input name="title" placeholder="Title" />
+            </ContentTitle>
+          </ContentInput>
 
-            <ContentInput>
-              <h1>Booking Date</h1>
-              <ContentTitle>
-                <Input name="booking" placeholder="Date"></Input>
-              </ContentTitle>
-            </ContentInput>
-
-            <ContentInput>
+          <ContentInput>
+            <h1>Booking Date</h1>
+            <ContentTitle>
+              <Input name="booking" placeholder="Date"></Input>
               <DatePicker
                 selected={startDate}
-                onChange={date => new Date()}
+                onChange={setStartDate}
                 showTimeSelect
                 timeFormat="HH:mm"
                 timeIntervals={15}
                 timeCaption="time"
                 dateFormat="MMMM d, yyyy h:mm aa"
               />
-            </ContentInput>
+            </ContentTitle>
+          </ContentInput>
 
-            <ContentInput>
-              <h1>Adress</h1>
-              <ContentTitle>
-                <Input name="city" placeholder="City" disabled={true} />
-                <Input name="country" placeholder="Country" disabled={true} />
-                <Input name="street" placeholder="Street" disabled={true} />
-                <Input name="zip" placeholder="Postal Code" disabled={true} />
-              </ContentTitle>
-            </ContentInput>
+          <ContentInput></ContentInput>
 
-            <ContentInput>
-              <h1>Customer</h1>
-              <ContentTitle>
-                <Input
-                  name="name"
-                  placeholder="Customer Name"
-                  disabled={true}
-                />
-                <Input
-                  name="email"
-                  placeholder="Customer E-mail"
-                  disabled={true}
-                />
-                <Input
-                  name="phone"
-                  placeholder="Customer Phone"
-                  disabled={true}
-                />
-              </ContentTitle>
-            </ContentInput>
+          <ContentInput>
+            <h1>Adress</h1>
+            <ContentTitle>
+              <Input name="city" placeholder="City" disabled={true} />
+              <Input name="country" placeholder="Country" disabled={true} />
+              <Input name="street" placeholder="Street" disabled={true} />
+              <Input name="zip" placeholder="Postal Code" disabled={true} />
+            </ContentTitle>
+          </ContentInput>
 
-            <Button type="submit">Confirm Changes</Button>
-          </Form>
-        </Content>
-      </Container>
+          <ContentInput>
+            <h1>Customer</h1>
+            <ContentTitle>
+              <Input name="name" placeholder="Customer Name" disabled={true} />
+              <Input
+                name="email"
+                placeholder="Customer E-mail"
+                disabled={true}
+              />
+              <Input
+                name="phone"
+                placeholder="Customer Phone"
+                disabled={true}
+              />
+            </ContentTitle>
+          </ContentInput>
 
-      {/* <span>{order.title}</span>
-      <span>{order.bookingDate}</span>
-      <span>{order.address}</span>
-      <span>{order.customer}</span> */}
-    </>
+          <Button type="submit">Confirm Changes</Button>
+        </Form>
+      </Content>
+    </Container>
   );
 };
 

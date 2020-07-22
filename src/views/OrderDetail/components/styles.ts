@@ -46,7 +46,7 @@ export const ContentInput = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
   margin-top: 20px;
 
   h1 {

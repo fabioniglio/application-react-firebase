@@ -96,7 +96,7 @@ const Dashboard = () => {
               };
             }
           });
-          console.log(ordersFormatted);
+
           setOrders(ordersFormatted);
         })
         .catch(error => {
