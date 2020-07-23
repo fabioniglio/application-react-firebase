@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
-// import DatePicker from '../../../components/DatePicker';
+
 import 'react-datepicker/dist/react-datepicker.css';
 import fromUnixTime from 'date-fns/fromUnixTime';
 import getTime from 'date-fns/getTime';
@@ -31,7 +31,7 @@ interface OrderParams {
 interface orderData {
   uid: string;
   title: string;
-  bookingDate: number;
+  bookingDate?: number;
   dateFormatted?: string;
   address: {
     city: string;
@@ -51,7 +51,6 @@ const OrderDetail = () => {
 
   const [startDate, setStartDate] = useState<Date | null>();
 
-  const [newDate, setNewDate] = useState<Date>();
   const { params } = useRouteMatch<OrderParams>();
   const history = useHistory();
 
@@ -64,19 +63,24 @@ const OrderDetail = () => {
         .then(response => {
           console.log('test ' + response.data.bookingDate);
 
-          const order = response.data;
-          const dateFormatted = fromUnixTime(order.bookingDate);
+          let dateFormatted: Date | null | undefined;
+          let dateString: string;
+          const order: orderData = response.data;
+          if (order.bookingDate) {
+            dateFormatted = fromUnixTime(order.bookingDate);
+            dateString = format(fromUnixTime(order.bookingDate), 'dd/MM/yyyy');
+          } else {
+            dateFormatted = null;
+            dateString = '';
+          }
 
           console.log(dateFormatted);
 
-          setNewDate(dateFormatted);
           setStartDate(dateFormatted);
           const orderFormatted = {
             ...order,
-            dateFormatted: format(
-              fromUnixTime(order.bookingDate),
-              'dd/MM/yyyy',
-            ),
+            city: order.address.city == undefined ? '' : order.address.city,
+            dateFormatted: dateString,
           };
 
           setOrder(orderFormatted);
@@ -101,32 +105,44 @@ const OrderDetail = () => {
       });
   };
 
-  const handleUpdateOrder = useCallback(async (data: orderData) => {
-    const id = params.order;
-    console.log(data.bookingDate);
-    const { title, bookingDate } = data;
-    try {
-      console.log('uid ' + id);
+  const handleUpdateOrder = useCallback(
+    async (data: orderData) => {
+      const id = params.order;
       console.log(startDate);
-      let newDate: Date;
-      if (startDate) {
-        newDate = new Date(startDate);
-      } else {
-        newDate = new Date();
+      const { title } = data;
+      try {
+        console.log('uid ' + id);
+
+        let newDate: Date;
+        if (startDate) {
+          newDate = new Date(startDate);
+        } else {
+          newDate = new Date();
+        }
+        console.log(newDate);
+        const bodyData = {
+          title,
+          bookingDate: getUnixTime(newDate),
+        };
+        console.log(bodyData);
+        await api.put(`/orders/${id}`, bodyData);
+
+        history.push('/dashboard');
+      } catch (err) {
+        console.log(err);
       }
-
-      const bodyData = {
-        title,
-        bookingDate: getUnixTime(newDate),
-      };
-      console.log(bodyData);
-      await api.put(`/orders/${id}`, bodyData);
-
-      history.push('/dashboard');
-    } catch (err) {
-      console.log(err);
-    }
-  }, []);
+    },
+    [history, params.order, startDate],
+  );
+  const hanndleChangeDate = useCallback(
+    (date: Date | null) => {
+      if (date) {
+        setStartDate(date);
+      }
+      console.log(startDate);
+    },
+    [startDate],
+  );
 
   return (
     <Container>
@@ -164,15 +180,17 @@ const OrderDetail = () => {
           <ContentInput>
             <h1>Booking Date</h1>
             <ContentTitle>
-              <Input name="booking" placeholder="Date"></Input>
               <DatePicker
+                name={'date'}
                 selected={startDate}
-                onChange={setStartDate}
+                onChange={date => hanndleChangeDate(date)}
                 showTimeSelect
                 timeFormat="HH:mm"
                 timeIntervals={15}
                 timeCaption="time"
+                minDate={new Date()}
                 dateFormat="MMMM d, yyyy h:mm aa"
+                customInput={<Input name="booking" placeholder="Date" />}
               />
             </ContentTitle>
           </ContentInput>
@@ -180,7 +198,7 @@ const OrderDetail = () => {
           <ContentInput></ContentInput>
 
           <ContentInput>
-            <h1>Adress</h1>
+            <h1>Address</h1>
             <ContentTitle>
               <Input name="city" placeholder="City" disabled={true} />
               <Input name="country" placeholder="Country" disabled={true} />
