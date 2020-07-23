@@ -13,7 +13,20 @@ export const HeaderContent = styled.div`
   display: flex;
   align-items: center;
 
-  button {
+  #backButton {
+    margin-right: 24px;
+    background: transparent;
+    border: 0;
+
+    svg {
+      color: #999591;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  }
+  #signOut {
     margin-left: auto;
     background: transparent;
     border: 0;

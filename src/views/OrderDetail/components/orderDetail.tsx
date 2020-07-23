@@ -4,14 +4,14 @@ import DatePicker from 'react-datepicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import fromUnixTime from 'date-fns/fromUnixTime';
-import getTime from 'date-fns/getTime';
+
 import { format, getUnixTime } from 'date-fns';
 import { Form } from '@unform/web';
 import api from '../../../services/api';
 import firebase from '../../../firebase';
 import 'firebase/firestore';
 
-import { FiPower } from 'react-icons/fi';
+import { FiPower, FiArrowLeft } from 'react-icons/fi';
 import {
   Container,
   Header,
@@ -33,16 +33,16 @@ interface orderData {
   title: string;
   bookingDate?: number;
   dateFormatted?: string;
-  address: {
-    city: string;
-    country: string;
+  address?: {
+    city: string | undefined;
+    country: string | undefined;
     street: string | undefined;
-    zip: string;
+    zip: string | undefined;
   };
   customer: {
-    email: string;
-    name: string | undefined;
-    phone: string;
+    email: string | undefined;
+    name?: string | undefined;
+    phone: string | undefined;
   };
 }
 
@@ -79,7 +79,7 @@ const OrderDetail = () => {
           setStartDate(dateFormatted);
           const orderFormatted = {
             ...order,
-            city: order.address.city == undefined ? '' : order.address.city,
+            city: order.address?.city == undefined ? '' : order.address.city,
             dateFormatted: dateString,
           };
 
@@ -144,12 +144,20 @@ const OrderDetail = () => {
     [startDate],
   );
 
+  const handleBackToDashboard = () => {
+    history.push('/dashboard');
+  };
+
   return (
     <Container>
       <Header>
         <HeaderContent>
+          <button id="backButton" onClick={handleBackToDashboard}>
+            <FiArrowLeft />
+          </button>
+
           <h1>Order detail</h1>
-          <button onClick={handleSignOut}>
+          <button id="signOut" onClick={handleSignOut}>
             <FiPower />
           </button>
         </HeaderContent>
@@ -160,13 +168,13 @@ const OrderDetail = () => {
           initialData={{
             title: order?.title,
             booking: order?.dateFormatted,
-            city: order?.address.city,
-            country: order?.address.country,
-            street: order?.address.street,
-            zip: order?.address.zip,
-            name: order?.customer.name,
-            email: order?.customer.email,
-            phone: order?.customer.phone,
+            city: order?.address?.city,
+            country: order?.address?.country,
+            street: order?.address?.street,
+            zip: order?.address?.zip,
+            name: order?.customer?.name,
+            email: order?.customer?.email,
+            phone: order?.customer?.phone,
           }}
           onSubmit={handleUpdateOrder}
         >
@@ -194,8 +202,6 @@ const OrderDetail = () => {
               />
             </ContentTitle>
           </ContentInput>
-
-          <ContentInput></ContentInput>
 
           <ContentInput>
             <h1>Address</h1>
