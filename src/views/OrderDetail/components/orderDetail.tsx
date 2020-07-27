@@ -47,7 +47,7 @@ interface orderData {
 }
 
 const OrderDetail = () => {
-  const [order, setOrder] = useState<orderData | undefined>();
+  const [order, setOrder] = useState<orderData>();
 
   const [startDate, setStartDate] = useState<Date | null>();
 
@@ -55,14 +55,10 @@ const OrderDetail = () => {
   const history = useHistory();
 
   useEffect(() => {
-    console.log(params.order);
-
     function fetchData() {
       api
         .get<orderData>(`orders/${params.order}`)
         .then(response => {
-          console.log('test ' + response.data.bookingDate);
-
           let dateFormatted: Date | null | undefined;
           let dateString: string;
           const order: orderData = response.data;
@@ -74,12 +70,9 @@ const OrderDetail = () => {
             dateString = '';
           }
 
-          console.log(dateFormatted);
-
           setStartDate(dateFormatted);
           const orderFormatted = {
             ...order,
-            city: order.address?.city == undefined ? '' : order.address.city,
             dateFormatted: dateString,
           };
 
@@ -108,23 +101,21 @@ const OrderDetail = () => {
   const handleUpdateOrder = useCallback(
     async (data: orderData) => {
       const id = params.order;
-      console.log(startDate);
+
       const { title } = data;
       try {
-        console.log('uid ' + id);
-
         let newDate: Date;
         if (startDate) {
           newDate = new Date(startDate);
         } else {
           newDate = new Date();
         }
-        console.log(newDate);
+
         const bodyData = {
           title,
           bookingDate: getUnixTime(newDate),
         };
-        console.log(bodyData);
+
         await api.put(`/orders/${id}`, bodyData);
 
         history.push('/dashboard');
@@ -186,7 +177,7 @@ const OrderDetail = () => {
           </ContentInput>
 
           <ContentInput>
-            <h1>Booking Date</h1>
+            <h1 style={{ marginRight: '-30px' }}>Booking Date</h1>
             <ContentTitle>
               <DatePicker
                 name={'date'}
@@ -204,7 +195,7 @@ const OrderDetail = () => {
           </ContentInput>
 
           <ContentInput>
-            <h1>Address</h1>
+            <h1 style={{ marginRight: '16px' }}>Address</h1>
             <ContentTitle>
               <Input name="city" placeholder="City" disabled={true} />
               <Input name="country" placeholder="Country" disabled={true} />

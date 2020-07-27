@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import fromUnixTime from 'date-fns/fromUnixTime';
 import { format } from 'date-fns';
 import firebase from '../../../firebase';
 import 'firebase/firestore';
-import api from '../../../services/api';
+
 import { FiPower } from 'react-icons/fi';
 
 import {
@@ -22,6 +22,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
 import { Container, Header, HeaderContent, Content } from './styles';
+import { useFetch } from '../../../hooks/useFetch';
 
 const StyledTableCell = withStyles((theme: Theme) =>
   createStyles({
@@ -70,43 +71,30 @@ interface orderData extends firebase.firestore.DocumentData {
 }
 
 const Dashboard = () => {
-  const [orders, setOrders] = useState<orderData[]>([]);
   const history = useHistory();
 
   const classes = useStyles();
 
-  useEffect(() => {
-    const fetchData = () => {
-      api
-        .get<orderData[]>('/orders')
-        .then(response => {
-          const ordersFormatted = response.data.map(order => {
-            if (order.bookingDate === null || order.bookingDate === undefined) {
-              return {
-                ...order,
-                dateFormatted: '',
-              };
-            } else {
-              return {
-                ...order,
-                dateFormatted: format(
-                  fromUnixTime(order.bookingDate),
-                  'dd/MM/yyyy',
-                ),
-              };
-            }
-          });
+  const { data } = useFetch<orderData[]>('/orders');
 
-          setOrders(ordersFormatted);
-        })
-        .catch(error => {
-          console.log(error.message);
-          alert(error.message);
-        });
-    };
+  if (!data) {
+    return <p>Loading...</p>;
+  }
+  console.log(data);
 
-    fetchData();
-  }, [setOrders]);
+  const ordersFormatted = data.map(order => {
+    if (order.bookingDate === null || order.bookingDate === undefined) {
+      return {
+        ...order,
+        dateFormatted: '',
+      };
+    } else {
+      return {
+        ...order,
+        dateFormatted: format(fromUnixTime(order.bookingDate), 'dd/MM/yyyy'),
+      };
+    }
+  });
 
   const handleClick = (event: any) => {
     event.preventDefault();
@@ -142,7 +130,7 @@ const Dashboard = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {orders.map((order: orderData) => (
+              {ordersFormatted.map((order: orderData) => (
                 <StyledTableRow key={order.uid}>
                   <StyledTableCell component="th" scope="row">
                     <Link to={`/orderdetail/${order.uid}`}>{order.title}</Link>
