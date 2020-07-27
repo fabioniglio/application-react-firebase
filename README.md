@@ -9,6 +9,7 @@ Typescript ⌨️ <br />
 Hooks ⚛️<br />
 Styled Components <br />
 Axios <br />
+Material UI 👨🏻‍💻<br />
 
 <img src="assets/demo.gif" />
 
