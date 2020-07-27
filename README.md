@@ -1,4 +1,4 @@
-## Project Form with Progress Bar
+## Project Firebase Front-End
 
 This repository it was developed to create an application to see order list registered on Firebase and login using Firebase User Auth.
 
